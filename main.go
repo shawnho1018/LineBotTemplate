@@ -17,7 +17,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 )
@@ -51,22 +50,31 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-                                if err := app.handleText(message, event.ReplyToken, event.Source); err != nil {
+                                if err := handleText(message, event.ReplyToken, event.Source); err != nil {
 					log.Print(err)
 				}
 			}
 		}
 	}
 }
+func replyText(replyToken, text string) error {
+	if _, err := bot.ReplyMessage(
+		replyToken,
+		linebot.NewTextMessage(text),
+	).Do(); err != nil {
+		return err
+	}
+	return nil
+}
 func handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
 	switch message.Text {
 	case "profile":
 		if source.UserID != "" {
-			profile, err := app.bot.GetProfile(source.UserID).Do()
+			profile, err := bot.GetProfile(source.UserID).Do()
 			if err != nil {
-				return app.replyText(replyToken, err.Error())
+				return replyText(replyToken, err.Error())
 			}
-			if _, err := app.bot.ReplyMessage(
+			if _, err := bot.ReplyMessage(
 				replyToken,
 				linebot.NewTextMessage("Display name: "+profile.DisplayName),
 				linebot.NewTextMessage("Status message: "+profile.StatusMessage),
@@ -74,7 +82,7 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 				return err
 			}
 		} else {
-			return app.replyText(replyToken, "Bot can't use profile API without user ID")
+			return replyText(replyToken, "Bot can't use profile API without user ID")
 		}
         case "build": 
 		template := linebot.NewConfirmTemplate(
@@ -82,20 +90,20 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 			linebot.NewMessageAction("Yes", "Yes!"),
 			linebot.NewMessageAction("No", "No!"),
 		)
-		if _, err := app.bot.ReplyMessage(
+		if _, err := bot.ReplyMessage(
 			replyToken,
 			linebot.NewTemplateMessage("Confirm alt text", template),
 		).Do(); err != nil {
 			return err
 		}
-        }
 	default:
 		log.Printf("Echo message to %s: %s", replyToken, message.Text)
-		if _, err := app.bot.ReplyMessage(
+		if _, err := bot.ReplyMessage(
 			replyToken,
 			linebot.NewTextMessage(message.Text),
 		).Do(); err != nil {
 			return err
 		}
 	}
+        return nil
 }
