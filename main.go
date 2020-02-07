@@ -17,6 +17,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+        "strings"
+        "io/ioutil"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 )
@@ -32,7 +34,29 @@ func main() {
 	addr := fmt.Sprintf(":%s", port)
 	http.ListenAndServe(addr, nil)
 }
-
+func callbuild(url string, token string, ref string) {
+        var r http.Request
+        r.ParseForm()
+        r.Form.Add("token", token)
+        r.Form.Add("ref", ref)
+        bodystr := strings.TrimSpace(r.Form.Encode())
+        request, err := http.NewRequest("POST", url, strings.NewReader(bodystr))
+        if err != nil {
+           log.Fatal(err)
+        }
+        request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+        var resp *http.Response        
+        resp, err = http.DefaultClient.Do(request)
+        if err != nil {
+           log.Fatal(err)
+        }
+	byts,err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(byts))
+}
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	events, err := bot.ParseRequest(r)
 
@@ -68,7 +92,7 @@ func replyText(replyToken, text string) error {
 }
 func handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
 	switch message.Text {
-	case "profile":
+	case "Profile":
 		if source.UserID != "" {
 			profile, err := bot.GetProfile(source.UserID).Do()
 			if err != nil {
@@ -84,7 +108,7 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		} else {
 			return replyText(replyToken, "Bot can't use profile API without user ID")
 		}
-        case "build": 
+        case "Build": 
 		template := linebot.NewConfirmTemplate(
 			"Do it?",
 			linebot.NewMessageAction("Yes", "Yes!"),
@@ -96,6 +120,8 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		).Do(); err != nil {
 			return err
 		}
+        case "Yes!":
+               callbuild("https://gitlab.com/api/v4/projects/16654842/trigger/pipeline", "3500c5b9724537c6bc182eaa5642bc", "master")
 	default:
 		log.Printf("Echo message to %s: %s", replyToken, message.Text)
 		if _, err := bot.ReplyMessage(
