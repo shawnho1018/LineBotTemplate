@@ -47,17 +47,55 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, event := range events {
+                log.Printf("Got event %v", event)
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				quota, err := bot.GetMessageQuota().Do()
-				if err != nil {
-					log.Println("Quota err:", err)
-				}
-				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.ID+":"+message.Text+" Bot message quota:"+strconv.FormatInt(quota.Value, 10))).Do(); err != nil {
+                                if err := app.handleText(message, event.ReplyToken, event.Source); err != nil {
 					log.Print(err)
 				}
 			}
+		}
+	}
+}
+func handleText(message *linebot.TextMessage, replyToken string, source *linebot.EventSource) error {
+	switch message.Text {
+	case "profile":
+		if source.UserID != "" {
+			profile, err := app.bot.GetProfile(source.UserID).Do()
+			if err != nil {
+				return app.replyText(replyToken, err.Error())
+			}
+			if _, err := app.bot.ReplyMessage(
+				replyToken,
+				linebot.NewTextMessage("Display name: "+profile.DisplayName),
+				linebot.NewTextMessage("Status message: "+profile.StatusMessage),
+			).Do(); err != nil {
+				return err
+			}
+		} else {
+			return app.replyText(replyToken, "Bot can't use profile API without user ID")
+		}
+        case "build": 
+		template := linebot.NewConfirmTemplate(
+			"Do it?",
+			linebot.NewMessageAction("Yes", "Yes!"),
+			linebot.NewMessageAction("No", "No!"),
+		)
+		if _, err := app.bot.ReplyMessage(
+			replyToken,
+			linebot.NewTemplateMessage("Confirm alt text", template),
+		).Do(); err != nil {
+			return err
+		}
+        }
+	default:
+		log.Printf("Echo message to %s: %s", replyToken, message.Text)
+		if _, err := app.bot.ReplyMessage(
+			replyToken,
+			linebot.NewTextMessage(message.Text),
+		).Do(); err != nil {
+			return err
 		}
 	}
 }
