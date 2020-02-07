@@ -54,7 +54,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					log.Println("Quota err:", err)
 				}
-				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.ID+":"+message.Text+" OK! message quota:"+strconv.FormatInt(quota.Value, 10))).Do(); err != nil {
+				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.ID+":"+message.Text+" Bot message quota:"+strconv.FormatInt(quota.Value, 10))).Do(); err != nil {
 					log.Print(err)
 				}
 			}
