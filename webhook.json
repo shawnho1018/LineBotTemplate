@@ -1,0 +1,12 @@
+{ 
+  "GoExporter": {
+     "URL": "https://gitlab.com/api/v4/projects/16654842/trigger/pipeline", 
+     "Token": "500c5b9724537c6bc182eaa5642bc", 
+     "Branch": "master"
+  },
+  "SpringWeb": {
+     "URL": "https://gitlab.com/api/v4/projects/16875740/trigger/pipeline", 
+     "Token": "fded56101951365743750dcc560905", 
+     "Branch": "master"
+  }
+}

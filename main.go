@@ -24,11 +24,18 @@ import (
 )
 
 var bot *linebot.Client
+var webhooks map[string]map[string]interface{}
 
 func main() {
 	var err error
 	bot, err = linebot.New(os.Getenv("ChannelSecret"), os.Getenv("ChannelAccessToken"))
 	log.Println("Bot:", bot, " err:", err)
+        // load webhook list
+        byteVal, _ := ioutil.ReadFile("webhooks.json")
+        if err := json.Unmarshal(byteVal, &webhooks); err != nil {
+           log.Fatal(err)
+           return
+        }
 	http.HandleFunc("/callback", callbackHandler)
 	port := os.Getenv("PORT")
 	addr := fmt.Sprintf(":%s", port)
@@ -107,6 +114,21 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 			}
 		} else {
 			return replyText(replyToken, "Bot can't use profile API without user ID")
+		}
+        case "Build1":
+                imageURL := app.appBaseURL + "images/tanzu.png"
+                template := linebot.NewButtonTemplate(
+                        imageURL, "Build Sample", "Hello! What would you like to build today?"
+			linebot.NewURIAction("Go to line.me", "https://line.me"),
+			linebot.NewPostbackAction("Say hello1", "hello こんにちは", "", "hello こんにちは"),
+			linebot.NewPostbackAction("言 hello2", "hello こんにちは", "hello こんにちは", ""),
+			linebot.NewMessageAction("Say message", "Rice=米"),
+		)
+		if _, err := app.bot.ReplyMessage(
+			replyToken,
+			linebot.NewTemplateMessage("Buttons alt text", template),
+		).Do(); err != nil {
+			return err
 		}
         case "Build": 
 		template := linebot.NewConfirmTemplate(
