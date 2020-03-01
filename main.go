@@ -13,12 +13,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-        "strings"
-        "io/ioutil"
+	"strings"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 )
@@ -30,34 +31,34 @@ func main() {
 	var err error
 	bot, err = linebot.New(os.Getenv("ChannelSecret"), os.Getenv("ChannelAccessToken"))
 	log.Println("Bot:", bot, " err:", err)
-        // load webhook list
-        byteVal, _ := ioutil.ReadFile("webhooks.json")
-        if err := json.Unmarshal(byteVal, &webhooks); err != nil {
-           log.Fatal(err)
-           return
-        }
+	// load webhook list
+	byteVal, _ := ioutil.ReadFile("webhooks.json")
+	if err := json.Unmarshal(byteVal, &webhooks); err != nil {
+		log.Fatal(err)
+		return
+	}
 	http.HandleFunc("/callback", callbackHandler)
 	port := os.Getenv("PORT")
 	addr := fmt.Sprintf(":%s", port)
 	http.ListenAndServe(addr, nil)
 }
 func callbuild(url string, token string, ref string) {
-        var r http.Request
-        r.ParseForm()
-        r.Form.Add("token", token)
-        r.Form.Add("ref", ref)
-        bodystr := strings.TrimSpace(r.Form.Encode())
-        request, err := http.NewRequest("POST", url, strings.NewReader(bodystr))
-        if err != nil {
-           log.Fatal(err)
-        }
-        request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-        var resp *http.Response        
-        resp, err = http.DefaultClient.Do(request)
-        if err != nil {
-           log.Fatal(err)
-        }
-	byts,err := ioutil.ReadAll(resp.Body)
+	var r http.Request
+	r.ParseForm()
+	r.Form.Add("token", token)
+	r.Form.Add("ref", ref)
+	bodystr := strings.TrimSpace(r.Form.Encode())
+	request, err := http.NewRequest("POST", url, strings.NewReader(bodystr))
+	if err != nil {
+		log.Fatal(err)
+	}
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	var resp *http.Response
+	resp, err = http.DefaultClient.Do(request)
+	if err != nil {
+		log.Fatal(err)
+	}
+	byts, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
 		log.Fatal(err)
@@ -77,11 +78,11 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, event := range events {
-                log.Printf("Got event %v", event)
+		log.Printf("Got event %v", event)
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-                                if err := handleText(message, event.ReplyToken, event.Source); err != nil {
+				if err := handleText(message, event.ReplyToken, event.Source); err != nil {
 					log.Print(err)
 				}
 			}
@@ -115,10 +116,10 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		} else {
 			return replyText(replyToken, "Bot can't use profile API without user ID")
 		}
-        case "Build1":
-                imageURL := "images/tanzu.png"
-                template := linebot.NewButtonTemplate(
-                        imageURL, "Build Sample", "Hello! What would you like to build today?"
+	case "Build1":
+		imageURL := "images/tanzu.png"
+		template := linebot.NewButtonTemplate(
+			imageURL, "Build Sample", "Hello! What would you like to build today?",
 			linebot.NewURIAction("Go to line.me", "https://line.me"),
 			linebot.NewPostbackAction("Say hello1", "hello こんにちは", "", "hello こんにちは"),
 			linebot.NewPostbackAction("言 hello2", "hello こんにちは", "hello こんにちは", ""),
@@ -130,7 +131,7 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		).Do(); err != nil {
 			return err
 		}
-        case "Build": 
+	case "Build":
 		template := linebot.NewConfirmTemplate(
 			"Do it?",
 			linebot.NewMessageAction("Yes", "Yes!"),
@@ -142,8 +143,8 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		).Do(); err != nil {
 			return err
 		}
-        case "Yes!":
-               callbuild("https://gitlab.com/api/v4/projects/16654842/trigger/pipeline", "3500c5b9724537c6bc182eaa5642bc", "master")
+	case "Yes!":
+		callbuild("https://gitlab.com/api/v4/projects/16654842/trigger/pipeline", "3500c5b9724537c6bc182eaa5642bc", "master")
 	default:
 		log.Printf("Echo message to %s: %s", replyToken, message.Text)
 		if _, err := bot.ReplyMessage(
@@ -153,5 +154,5 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 			return err
 		}
 	}
-        return nil
+	return nil
 }
