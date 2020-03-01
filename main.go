@@ -118,7 +118,7 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		}
 	case "Build1":
 		imageURL := "images/tanzu.png"
-		template := linebot.NewButtonTemplate(
+		template := linebot.NewButtonsTemplate(
 			imageURL, "Build Sample", "Hello! What would you like to build today?",
 			linebot.NewURIAction("Go to line.me", "https://line.me"),
 			linebot.NewPostbackAction("Say hello1", "hello こんにちは", "", "hello こんにちは"),
