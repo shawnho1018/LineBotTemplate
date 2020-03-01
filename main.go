@@ -116,7 +116,7 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 			return replyText(replyToken, "Bot can't use profile API without user ID")
 		}
 	case "Build1":
-		imageURL := "images/tanzu.png"
+		imageURL := app.appBaseURL + "/images/tanzu.png"
 		template := linebot.NewButtonsTemplate(
 			imageURL, "Build Sample", "Hello! What would you like to build today?",
 			linebot.NewURIAction("Go to line.me", "https://line.me"),
