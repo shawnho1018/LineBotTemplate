@@ -31,9 +31,10 @@ func main() {
 	var err error
 	bot, err = linebot.New(os.Getenv("ChannelSecret"), os.Getenv("ChannelAccessToken"))
 	base_url = os.Getenv("APP_BASE_URL")
+	log.Println("base_url: ", base_url)
 	log.Println("Bot:", bot, " err:", err)
 	// load webhook list
-	//byteVal, _ := ioutil.ReadFile(base_url + "webhooks.json")
+	//byteVal, _ := ioutil.ReadFile(base_url + "/webhooks.json")
 	//if err := json.Unmarshal(byteVal, &webhooks); err != nil {
 	//	log.Fatal(err)
 	//	return
@@ -119,6 +120,7 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		}
 	case "Build1":
 		imageURL := base_url + "/images/tanzu.png"
+		log.Println("Tanzu Image Path:", imageURL)
 		template := linebot.NewButtonsTemplate(
 			imageURL, "Build Sample", "Hello! What would you like to build today?",
 			linebot.NewURIAction("Go to line.me", "https://line.me"),
