@@ -76,7 +76,7 @@ func callbuild(url string, token string, ref string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//fmt.Println(string(byts))
+	fmt.Println(string(byts))
 }
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	events, err := bot.ParseRequest(r)
