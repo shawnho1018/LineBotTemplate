@@ -44,12 +44,12 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	for k, v := range webhooks {
+	/*for k, v := range webhooks {
 		fmt.Printf("%s -> %s\n", k, v)
 		for k1, v1 := range v {
 			fmt.Printf("%s -> %s\n", k1, v1)
 		}
-	}
+	}*/
 	http.HandleFunc("/callback", callbackHandler)
 	port := os.Getenv("PORT")
 	addr := fmt.Sprintf(":%s", port)
@@ -131,13 +131,12 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		}
 	case "Build":
 		imageURL := "https://miro.medium.com/max/1500/1*pgvyLv6PdRGC54BpV3POcQ.png"
-		//log.Println("Tanzu Image Path:", imageURL)
 		template := linebot.NewButtonsTemplate(
 			imageURL, "Build Sample", "Hello! What would you like to build today?",
-			linebot.NewURIAction("Go to line.me", "https://line.me"),
-			linebot.NewPostbackAction("Say hello1", "hello こんにちは", "", "hello こんにちは"),
-			linebot.NewPostbackAction("言 hello2", "hello こんにちは", "hello こんにちは", ""),
-			linebot.NewMessageAction("Say message", "Rice=米"),
+			linebot.NewPostbackAction("GoExporter", "GoExporter", "GoExporter", ""),
+			linebot.NewPostbackAction("SpringWeb", "SpringWeb", "SpringWeb", ""),
+			linebot.NewPostbackAction("GoWeb", "GoWeb", "GoWeb", ""),
+			linebot.NewPostbackAction("Cancel", "Cancel", "Cancel", ""),
 		)
 		if _, err := bot.ReplyMessage(
 			replyToken,
@@ -157,8 +156,11 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		).Do(); err != nil {
 			return err
 		}
-	case "Yes!":
+	case "GoExporter":
 		callbuild("https://gitlab.com/api/v4/projects/16654842/trigger/pipeline", "3500c5b9724537c6bc182eaa5642bc", "master")
+	case "SpringWeb":
+		callbuild("https://gitlab.com/api/v4/projects/16875740/trigger/pipeline", "fded56101951365743750dcc560905", "master")
+
 	default:
 		log.Printf("Echo message to %s: %s", replyToken, message.Text)
 		if _, err := bot.ReplyMessage(
