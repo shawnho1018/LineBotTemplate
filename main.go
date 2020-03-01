@@ -125,7 +125,7 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 			linebot.NewPostbackAction("言 hello2", "hello こんにちは", "hello こんにちは", ""),
 			linebot.NewMessageAction("Say message", "Rice=米"),
 		)
-		if _, err := app.bot.ReplyMessage(
+		if _, err := bot.ReplyMessage(
 			replyToken,
 			linebot.NewTemplateMessage("Buttons alt text", template),
 		).Do(); err != nil {
