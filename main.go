@@ -35,7 +35,7 @@ func main() {
 	log.Println("base_url: ", base_url)
 	log.Println("Bot:", bot, " err:", err)
 	// load webhook list
-	byteVal, err := ioutil.ReadFile(webhooks.json)
+	byteVal, err := ioutil.ReadFile("webhook.json")
 	if err != nil {
 		log.Fatal(err)
 		return
