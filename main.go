@@ -13,7 +13,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -32,11 +31,11 @@ func main() {
 	bot, err = linebot.New(os.Getenv("ChannelSecret"), os.Getenv("ChannelAccessToken"))
 	log.Println("Bot:", bot, " err:", err)
 	// load webhook list
-	byteVal, _ := ioutil.ReadFile("webhooks.json")
-	if err := json.Unmarshal(byteVal, &webhooks); err != nil {
-		log.Fatal(err)
-		return
-	}
+	//byteVal, _ := ioutil.ReadFile("webhooks.json")
+	//if err := json.Unmarshal(byteVal, &webhooks); err != nil {
+	//	log.Fatal(err)
+	//	return
+	//}
 	http.HandleFunc("/callback", callbackHandler)
 	port := os.Getenv("PORT")
 	addr := fmt.Sprintf(":%s", port)
