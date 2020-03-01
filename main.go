@@ -13,6 +13,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -34,11 +35,21 @@ func main() {
 	log.Println("base_url: ", base_url)
 	log.Println("Bot:", bot, " err:", err)
 	// load webhook list
-	//byteVal, _ := ioutil.ReadFile(base_url + "/webhooks.json")
-	//if err := json.Unmarshal(byteVal, &webhooks); err != nil {
-	//	log.Fatal(err)
-	//	return
-	//}
+	byteVal, err := ioutil.ReadFile(webhooks.json)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	if err := json.Unmarshal(byteVal, &webhooks); err != nil {
+		log.Fatal(err)
+		return
+	}
+	for k, v := range webhooks {
+		fmt.Printf("%s -> %s\n", k, v)
+		for k1, v1 := range v {
+			fmt.Printf("%s -> %s\n", k1, v1)
+		}
+	}
 	http.HandleFunc("/callback", callbackHandler)
 	port := os.Getenv("PORT")
 	addr := fmt.Sprintf(":%s", port)
@@ -65,7 +76,7 @@ func callbuild(url string, token string, ref string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(string(byts))
+	//fmt.Println(string(byts))
 }
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	events, err := bot.ParseRequest(r)
@@ -118,8 +129,8 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		} else {
 			return replyText(replyToken, "Bot can't use profile API without user ID")
 		}
-	case "Build1":
-		imageURL := "https://assets.cloud.vmware.com/v3/assets/blt58b49a8a0e43b5ff/blte8487650cebfe52f/5d15588d331189f66e3d2ba8/205485-vmw-icn-pks-final.svg"
+	case "Build":
+		imageURL := "https://miro.medium.com/max/1500/1*pgvyLv6PdRGC54BpV3POcQ.png"
 		//log.Println("Tanzu Image Path:", imageURL)
 		template := linebot.NewButtonsTemplate(
 			imageURL, "Build Sample", "Hello! What would you like to build today?",
@@ -134,7 +145,7 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 		).Do(); err != nil {
 			return err
 		}
-	case "Build":
+	case "Build1":
 		template := linebot.NewConfirmTemplate(
 			"Do it?",
 			linebot.NewMessageAction("Yes", "Yes!"),
