@@ -119,8 +119,8 @@ func handleText(message *linebot.TextMessage, replyToken string, source *linebot
 			return replyText(replyToken, "Bot can't use profile API without user ID")
 		}
 	case "Build1":
-		imageURL := base_url + "/statuc/buttons/1040.jph"
-		log.Println("Tanzu Image Path:", imageURL)
+		imageURL := "https://assets.cloud.vmware.com/v3/assets/blt58b49a8a0e43b5ff/blte8487650cebfe52f/5d15588d331189f66e3d2ba8/205485-vmw-icn-pks-final.svg"
+		//log.Println("Tanzu Image Path:", imageURL)
 		template := linebot.NewButtonsTemplate(
 			imageURL, "Build Sample", "Hello! What would you like to build today?",
 			linebot.NewURIAction("Go to line.me", "https://line.me"),
